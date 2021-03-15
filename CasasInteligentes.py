@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestRegressor
 # from sklearn.metrics import r2_score
 import pylab as pl
 import matplotlib.pyplot as plt
+from fbprophet import Prophet
 # import numpy as np
 
 
@@ -45,16 +46,18 @@ def read_data():
 # Casa 15 é a unica casa na região WYJ
 # Todas as outras casas pertencem a região YVR
 # =============================================================================
-    res = pd.read_csv('Residential_2.csv')
+    res = pd.read_csv('Residential_1.csv')
     
     # res = pd.read_csv('Residential_2.csv')
     
     # holidays = pd.read_csv('Holidays.csv')
-           
-    dates = pd.DataFrame([dict(zip(['year','month', 'day'],a.split('-'))) for a in res['date']])
+    
+       
+    dates=pd.DataFrame([dict(zip(['year','month', 'day'],a.split('-'))) for a in res['date']])
     res['year'],res['month'],res['day'] = dates['year'],dates['month'],dates['day']
     # res = res[['date','year','month','day','hour','energy_kWh']]
-        
+    
+    
     res['weekday'] = pd.to_datetime(res['date']).dt.dayofweek  # monday = 0, sunday = 6
     res['weekend_indi'] = 0          # Initialize the column with default value of 0
     res.loc[res['weekday'].isin([5, 6]), 'weekend_indi'] = 1  # 5 and 6 correspond to Sat and Sun
@@ -83,17 +86,19 @@ def read_data():
     
     dates['hour']=res['hour']
     
-    df.index=pd.to_datetime(dates)
+    # df.index=pd.to_datetime(dates)
+    df['ds'] = pd.to_datetime(dates)
     df = df.drop(columns =['date_x','hour','year','month','day'])
     # df = df.drop(columns =['date'])
     
     df = df.dropna()
 
-    X = df.drop(columns=['energy_kWh'])
+    # X = df.drop(columns=['energy_kWh'])
 
-    y = df.energy_kWh
+    # y = df.energy_kWh
 
-    return X, y
+    # return X, y
+    return df
 
 def train():
     
@@ -110,6 +115,38 @@ def train():
     pl.plot(y_test,y_test,'-',y_test,prediction,'o')
     pl.figure()
     pl.plot(y_test.values,'r-',prediction,'b-')
+
+def to_Prophet():
+
+    df = read_data()
+    
+    df = df.rename(columns=({'energy_kWh':'y'}))
+    
+    train_size = int(df.shape[0]*.7)
+    train, test = df[0:train_size], df[train_size:]
+            
+    m = Prophet()
+    
+    aux = df.drop(columns=(['y','ds']))
+    for col in aux.columns: 
+        m.add_regressor(col,standardize=False)
+
+    m.fit(train)
+    # m.fit(df)
+           
+    forecast = m.predict(test.drop(columns=('y')))
+        
+    fig1 = m.plot(forecast)
+
+    fig2 = m.plot_components(forecast)
+        
+    pl.figure()
+    pl.plot(test.y,test.y,'-',test.y,forecast.yhat,'o')
+    pl.show()
+    
+    return forecast, test
+
+to_Prophet()
 
 # train()
 
