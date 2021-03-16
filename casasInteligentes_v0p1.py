@@ -20,7 +20,7 @@ from fbprophet import Prophet
 # Transforma algumas info em variáveis tipo dummie
 # =============================================================================
 def infoCasas():
-    info = pd.read_csv('./csv/Houses_info.csv')
+    info = pd.read_csv('csv\Houses_info.csv')
     
     dummie_HouseType = pd.get_dummies(info['HouseType'])
     dummie_Facing = pd.get_dummies(info['Facing'])
@@ -48,8 +48,9 @@ def read_data(fn='./csv/Residential_1.csv'):
 # =============================================================================
     res = pd.read_csv(fn)
     
-       
-    # holidays = pd.read_csv('./csv/Holidays.csv')
+    # res = pd.read_csv('csv\Residential_2.csv')
+    
+    # holidays = pd.read_csv('csv\Holidays.csv')
     
        
     dates=pd.DataFrame([dict(zip(['year','month', 'day'],a.split('-'))) for a in res['date']])
@@ -89,8 +90,6 @@ def read_data(fn='./csv/Residential_1.csv'):
     df['ds'] = pd.to_datetime(dates)
     df = df.drop(columns =['date_x','hour','year','month','day'])
     # df = df.drop(columns =['date'])
-
-    df = df.loc[(df!=0).any(1), (df!=0).any(0)]
 
     for c in df.columns:
         plt.figure(figsize=(10,5))
@@ -141,7 +140,7 @@ df = df.rename(columns=({'energy_kWh':'y'}))
 train_size = int(df.shape[0]*.7)
 train, test = df[0:train_size], df[train_size:]
         
-# m = Prophet()
+m = Prophet()
 
 aux = df.drop(columns=(['y','ds']))
 for col in aux.columns: 
