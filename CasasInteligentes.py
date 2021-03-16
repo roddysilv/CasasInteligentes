@@ -40,13 +40,13 @@ def infoCasas():
 # Lê arquivos das casas, tempo e incidencia solar
 # Retorna um DataFrame X e uma série y
 # =============================================================================
-def read_data():
+def read_data(fn='./csv/Residential_1.csv'):
 # =============================================================================
 # Casa 7 Possui dados faltantes sobre a região
 # Casa 15 é a unica casa na região WYJ
 # Todas as outras casas pertencem a região YVR
 # =============================================================================
-    res = pd.read_csv('csv\Residential_1.csv')
+    res = pd.read_csv(fn)
     
     # res = pd.read_csv('csv\Residential_2.csv')
     
@@ -62,7 +62,7 @@ def read_data():
     res['weekend_indi'] = 0          # Initialize the column with default value of 0
     res.loc[res['weekday'].isin([5, 6]), 'weekend_indi'] = 1  # 5 and 6 correspond to Sat and Sun
       
-    weather_yvr = pd.read_csv('csv\Weather_YVR.csv')
+    weather_yvr = pd.read_csv('./csv/Weather_YVR.csv')
     weather_yvr.hour=weather_yvr.hour.replace(24,0)
     
     dates=pd.DataFrame([dict(zip(['year','month', 'day'],a.split('-'))) for a in weather_yvr['date']])
@@ -74,7 +74,7 @@ def read_data():
     
     df = pd.merge(weather_yvr,res, on=["year","month","day","hour"])
     
-    solar = pd.read_csv('csv\Solar.csv')
+    solar = pd.read_csv('./csv/Solar.csv')
     dates=pd.DataFrame([dict(zip(['year','month', 'day'],a.split('-'))) for a in solar['date']])
     solar = pd.concat([dates.drop(columns =['year']), solar.drop(columns=['date'])],axis=1)
     
@@ -90,7 +90,13 @@ def read_data():
     df['ds'] = pd.to_datetime(dates)
     df = df.drop(columns =['date_x','hour','year','month','day'])
     # df = df.drop(columns =['date'])
-    
+
+    for c in df.columns:
+        plt.figure(figsize=(10,5))
+        df[c].plot(label=c)
+        plt.legend()
+        pl.show()
+        
     df = df.dropna()
 
     # X = df.drop(columns=['energy_kWh'])
