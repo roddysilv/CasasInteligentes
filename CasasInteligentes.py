@@ -116,37 +116,49 @@ def train():
     pl.figure()
     pl.plot(y_test.values,'r-',prediction,'b-')
 
-def to_Prophet():
 
-    df = read_data()
-    
-    df = df.rename(columns=({'energy_kWh':'y'}))
-    
-    train_size = int(df.shape[0]*.7)
-    train, test = df[0:train_size], df[train_size:]
-            
-    m = Prophet()
-    
-    aux = df.drop(columns=(['y','ds']))
-    for col in aux.columns: 
-        m.add_regressor(col,standardize=False)
 
-    m.fit(train)
-    # m.fit(df)
-           
-    forecast = m.predict(test.drop(columns=('y')))
+
+# =============================================================================
+# Prophet
+# =============================================================================
+
+df = read_data()
+
+df = df.rename(columns=({'energy_kWh':'y'}))
+
+train_size = int(df.shape[0]*.7)
+train, test = df[0:train_size], df[train_size:]
         
-    fig1 = m.plot(forecast)
+m = Prophet()
 
-    fig2 = m.plot_components(forecast)
-        
-    pl.figure()
-    pl.plot(test.y,test.y,'-',test.y,forecast.yhat,'o')
-    pl.show()
+aux = df.drop(columns=(['y','ds']))
+for col in aux.columns: 
+    m.add_regressor(col,standardize=False)
+
+m.fit(train)
+# m.fit(df)
+       
+forecast = m.predict(test.drop(columns=('y')))
     
-    return forecast, test
+fig1 = m.plot(forecast)
 
-to_Prophet()
+fig2 = m.plot_components(forecast)
+    
+pl.figure()
+pl.plot(test.y,test.y,'-',test.y,forecast.yhat,'o')
+
+pl.figure()
+pl.plot(test.y.values,'k-',label="Real")
+
+pl.plot(forecast.yhat.values,'b--',label="Previsto")
+
+pl.legend()
+
+pl.show()
+    
+
+
 
 # train()
 
