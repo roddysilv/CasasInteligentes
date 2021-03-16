@@ -12,6 +12,7 @@ from sklearn.ensemble import RandomForestRegressor
 import pylab as pl
 import matplotlib.pyplot as plt
 from fbprophet import Prophet
+import numpy as np
 # import numpy as np
 
 
@@ -20,7 +21,7 @@ from fbprophet import Prophet
 # Transforma algumas info em variáveis tipo dummie
 # =============================================================================
 def infoCasas():
-    info = pd.read_csv('csv\Houses_info.csv')
+    info = pd.read_csv('./csv/Houses_info.csv')
     
     dummie_HouseType = pd.get_dummies(info['HouseType'])
     dummie_Facing = pd.get_dummies(info['Facing'])
@@ -46,7 +47,9 @@ def read_data(fn='./csv/Residential_1.csv'):
 # Casa 15 é a unica casa na região WYJ
 # Todas as outras casas pertencem a região YVR
 # =============================================================================
+    #%%
     res = pd.read_csv(fn)
+    res = pd.read_csv('./csv/Residential_2.csv')
     
     # res = pd.read_csv('csv\Residential_2.csv')
     
@@ -90,14 +93,22 @@ def read_data(fn='./csv/Residential_1.csv'):
     df['ds'] = pd.to_datetime(dates)
     df = df.drop(columns =['date_x','hour','year','month','day'])
     # df = df.drop(columns =['date'])
-
-    for c in df.columns:
-        plt.figure(figsize=(10,5))
-        df[c].plot(label=c)
-        plt.legend()
-        pl.show()
-        
+    df.index = df['ds']
+    
+    
+    #df['energy_kWh']=df['energy_kWh'].rolling(window=5, min_periods=1).mean()
+    #(df['energy_kWh']).plot()    
+    #df['energy_kWh'] = [ np.log(x) if x> 1e-3 else 0 for x in df['energy_kWh'] ]
+    #df['energy_kWh'] = np.log(df['energy_kWh']).plot()
+    #%%
     df = df.dropna()
+    # for c in df.columns:
+    #     plt.figure(figsize=(10,5))
+    #     df[c].plot(label=c)
+    #     plt.legend()
+    #     pl.show()
+        
+    #%%        
 
     # X = df.drop(columns=['energy_kWh'])
 
@@ -132,7 +143,7 @@ def train():
 # =============================================================================
 # Prophet
 # =============================================================================
-
+#%%
 df = read_data()
 
 df = df.rename(columns=({'energy_kWh':'y'}))
@@ -166,10 +177,4 @@ pl.plot(forecast.yhat.values,'b--',label="Previsto")
 pl.legend()
 
 pl.show()
-    
-
-
-
-# train()
-
-# i = infoCasas()
+#%%
