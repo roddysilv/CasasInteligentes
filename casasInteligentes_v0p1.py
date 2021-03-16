@@ -160,7 +160,7 @@ for col in aux.columns:
 m.fit(train)
 # m.fit(df)
        
-forecast = m.predict(test.drop(columns=('y')))
+forecast = m.predict(test.drop(columns=(['y'])))
     
 fig1 = m.plot(forecast)
 
@@ -168,13 +168,30 @@ fig2 = m.plot_components(forecast)
     
 pl.figure()
 pl.plot(test.y,test.y,'-',test.y,forecast.yhat,'o')
+pl.show()
 
 pl.figure()
 pl.plot(test.y.values,'k-',label="Real")
-
 pl.plot(forecast.yhat.values,'b--',label="Previsto")
-
 pl.legend()
-
 pl.show()
 #%%
+from sklearn.ensemble import  RandomForestRegressor
+reg=RandomForestRegressor()
+reg.fit(aux, df['y'])
+
+forecast = reg.predict(test.drop(columns=(['y','ds'])))
+
+pl.figure()
+pl.plot(test.y,test.y,'-',test.y,forecast,'o')
+pl.show()
+
+pl.figure()
+pl.plot(test.y.values,'k-',label="Real")
+pl.plot(forecast,'b--',label="Previsto")
+pl.legend()
+pl.show()
+
+#%%
+
+
