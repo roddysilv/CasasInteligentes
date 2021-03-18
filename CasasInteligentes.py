@@ -7,12 +7,11 @@ Created on Wed Feb 10 15:49:32 2021
 """
 
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-# from sklearn.metrics import r2_score
-import pylab as pl
 import matplotlib.pyplot as plt
-from fbprophet import Prophet
 # import numpy as np
+
+from sklearn.ensemble import RandomForestRegressor
+from fbprophet import Prophet
 
 
 # =============================================================================
@@ -37,6 +36,17 @@ def infoCasas():
     return info
 
 # =============================================================================
+# Retorna um Dataframe especifico dos feriados para o fbprophet 
+# =============================================================================
+def holiday():
+    df = pd.read_csv('./csv/Holidays.csv')
+    df = df.drop(columns=['day','weekend','dst'])
+    df = df.rename(columns=({'date':'ds'}))
+    df['ds'] =  pd.to_datetime(df['ds'])
+    df = df.dropna()
+    return df
+
+# =============================================================================
 # Lê arquivos das casas, tempo e incidencia solar
 # Retorna um DataFrame X e uma série y
 # =============================================================================
@@ -47,15 +57,12 @@ def read_data(fn='./csv/Residential_1.csv'):
 # Todas as outras casas pertencem a região YVR
 # =============================================================================
     res = pd.read_csv(fn)
-    
-       
-    # holidays = pd.read_csv('./csv/Holidays.csv')
-    
+        
+    # holidays = pd.read_csv('Holidays.csv')
        
     dates=pd.DataFrame([dict(zip(['year','month', 'day'],a.split('-'))) for a in res['date']])
     res['year'],res['month'],res['day'] = dates['year'],dates['month'],dates['day']
     # res = res[['date','year','month','day','hour','energy_kWh']]
-    
     
     res['weekday'] = pd.to_datetime(res['date']).dt.dayofweek  # monday = 0, sunday = 6
     res['weekend_indi'] = 0          # Initialize the column with default value of 0
@@ -89,66 +96,42 @@ def read_data(fn='./csv/Residential_1.csv'):
     df['ds'] = pd.to_datetime(dates)
     df = df.drop(columns =['date_x','hour','year','month','day'])
     # df = df.drop(columns =['date'])
-
+    
+    df = df.dropna()
     df = df.loc[(df!=0).any(1), (df!=0).any(0)]
 
-    for c in df.columns:
-        plt.figure(figsize=(10,5))
-        df[c].plot(label=c)
-        plt.legend()
-        pl.show()
+# =============================================================================
+#     X = df.drop(columns=['energy_kWh'])
+#     y = df.energy_kWh
+#     return X, y
+# =============================================================================
+
+# =============================================================================
+#     for c in df.columns:
+#         plt.figure(figsize=(10,5))
+#         df[c].plot(label=c)
+#         plt.legend()
+#         plt.show()
+# =============================================================================
         
-    df = df.dropna()
-
-    # X = df.drop(columns=['energy_kWh'])
-
-    # y = df.energy_kWh
-
-    # return X, y
     return df
 
-def train():
-    
-    X, y = read_data()
-
-    train_size = int(X.shape[0]*.8)
-    X_train, X_test = X[0:train_size], X[train_size:]
-    y_train, y_test = y[0:train_size], y[train_size:]
-
-    reg = RandomForestRegressor()
-    reg.fit(X_train, y_train)
-    prediction = reg.predict(X_test)
-    #%%    
-    plt.figure()
-    plt.plot(y_test,y_test,'-',y_test,prediction,'o')
-    plt.show()
-    
-    plt.figure()
-    plt.plot(y_test.values,'r-',prediction,'b-')
-    plt.show()
 #%%    
-
-
-
 # =============================================================================
-# Prophet
+# FbProphet
 # =============================================================================
-
 df = read_data()
-
 df = df.rename(columns=({'energy_kWh':'y'}))
 
-train_size = int(df.shape[0]*.7)
+train_size = int(df.shape[0]*.9)
 train, test = df[0:train_size], df[train_size:]
-        
-# m = Prophet()
 
-aux = df.drop(columns=(['y','ds']))
-for col in aux.columns: 
-    m.add_regressor(col,standardize=False)
+m = Prophet()
+
+for col in train.drop(columns=(['y','ds'])).columns: 
+    m.add_regressor(col,standardize='auto')
 
 m.fit(train)
-# m.fit(df)
        
 forecast = m.predict(test.drop(columns=('y')))
     
@@ -156,21 +139,43 @@ fig1 = m.plot(forecast)
 
 fig2 = m.plot_components(forecast)
     
-pl.figure()
-pl.plot(test.y,test.y,'-',test.y,forecast.yhat,'o')
+plt.figure()
+plt.scatter(test.y,forecast.yhat,c='r',marker='o',edgecolors='k',label='Previsto')
+plt.plot(test.y,test.y,'k-',label='Real')
+plt.title("Prophet - Scatter")
+plt.show()
 
-pl.figure()
-pl.plot(test.y.values,'k-',label="Real")
+plt.figure()
+plt.plot(test.y.values,'k-',label="Real")
+plt.plot(forecast.yhat.values,'b--',label="Previsto")
+plt.title("Prophet - Previsão")
+plt.legend()
+plt.show()
 
-pl.plot(forecast.yhat.values,'b--',label="Previsto")
+#%%   
+# =============================================================================
+# RandomForestRegressor
+# =============================================================================
+df = read_data()
 
-pl.legend()
+train_size = int(df.shape[0]*.9)
+train, test = df[0:train_size], df[train_size:]
 
-pl.show()
-    
+reg=RandomForestRegressor()
+reg.fit(train.drop(columns=(['energy_kWh','ds'])), train['energy_kWh'])
 
+forecast = reg.predict(test.drop(columns=(['energy_kWh','ds'])))
 
+plt.figure()
+plt.scatter(test['energy_kWh'],forecast,c='r',marker='o',edgecolors='k',label='Previsto')
+plt.plot(test['energy_kWh'],test['energy_kWh'],'k-',label='Real')
+plt.title("RandomForestRegressor - Scatter")
+plt.legend()
+plt.show()
 
-# train()
-
-# i = infoCasas()
+plt.figure()
+plt.plot(test.energy_kWh.values,'k-',label="Real")
+plt.plot(forecast,'b--',label="Previsto")
+plt.title("RandomForestRegressor - Previsão")
+plt.legend()
+plt.show()
