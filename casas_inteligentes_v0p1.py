@@ -95,8 +95,9 @@ def read_data(fn='./csv/Residential_1.csv'):
     # df = df.drop(columns =['date'])
     df.index = df['ds']
     
-    
-    #df['energy_kWh']=df['energy_kWh'].rolling(window=5, min_periods=1).mean()
+    for s in ['energy_kWh', 'temperature', 'humidity', 'pressure','dc_output','ac_output']:
+        df[s]=df[s].rolling(window=6, min_periods=1).mean()
+        
     #(df['energy_kWh']).plot()    
     #df['energy_kWh'] = [ np.log(x) if x> 1e-3 else 0 for x in df['energy_kWh'] ]
     #df['energy_kWh'] = np.log(df['energy_kWh']).plot()
@@ -176,21 +177,23 @@ pl.plot(forecast.yhat.values,'b--',label="Previsto")
 pl.legend()
 pl.show()
 #%%
-from sklearn.ensemble import  RandomForestRegressor
-reg=RandomForestRegressor()
-reg.fit(aux, df['y'])
-
-forecast = reg.predict(test.drop(columns=(['y','ds'])))
-
-pl.figure()
-pl.plot(test.y,test.y,'-',test.y,forecast,'o')
-pl.show()
-
-pl.figure()
-pl.plot(test.y.values,'k-',label="Real")
-pl.plot(forecast,'b--',label="Previsto")
-pl.legend()
-pl.show()
+# =============================================================================
+# from sklearn.ensemble import  RandomForestRegressor
+# reg=RandomForestRegressor()
+# reg.fit(aux, df['y'])
+# 
+# forecast = reg.predict(test.drop(columns=(['y','ds'])))
+# 
+# pl.figure()
+# pl.plot(test.y,test.y,'-',test.y,forecast,'o')
+# pl.show()
+# 
+# pl.figure()
+# pl.plot(test.y.values,'k-',label="Real")
+# pl.plot(forecast,'b--',label="Previsto")
+# pl.legend()
+# pl.show()
+# =============================================================================
 
 #%%
 
