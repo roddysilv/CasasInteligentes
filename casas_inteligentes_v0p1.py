@@ -95,8 +95,9 @@ def read_data(fn='./csv/Residential_1.csv'):
     # df = df.drop(columns =['date'])
     df.index = df['ds']
     
-    for s in ['energy_kWh', 'temperature', 'humidity', 'pressure','dc_output','ac_output']:
-        df[s]=df[s].rolling(window=6, min_periods=1).mean()
+    for s in [ 'temperature', 'humidity', 'pressure','dc_output','ac_output', 'energy_kWh',]:
+        df[s]=df[s].rolling(window=12, min_periods=1).mean()
+        
         
     #(df['energy_kWh']).plot()    
     #df['energy_kWh'] = [ np.log(x) if x> 1e-3 else 0 for x in df['energy_kWh'] ]
@@ -108,6 +109,21 @@ def read_data(fn='./csv/Residential_1.csv'):
     #     df[c].plot(label=c)
     #     plt.legend()
     #     pl.show()
+    
+    #%%
+    from statsmodels.tsa.seasonal import seasonal_decompose
+    
+    df['energy_kWh'].to_csv('energy_kWh.csv')
+    series = read_csv('energy_kWh.csv', header=0, index_col=0)
+
+    series = df[['energy_kWh']]
+    series.index = df.ds.values
+    result = seasonal_decompose(pd.DataFrame(series), model='multiplicative')
+    #%%
+    series = read_csv('airline-passengers.csv', header=0, index_col=0)
+    series.index = pd.DatetimeIndex(series.index)
+    result = seasonal_decompose(pd.DataFrame(series), model='multiplicative')
+    result.plot()
         
     #%%        
 
