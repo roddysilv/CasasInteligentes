@@ -3,10 +3,13 @@ import numpy as np
 import tsfel
 from glob import glob
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pl
 import seaborn as sns; sns.set()
 
 from sklearn.decomposition import PCA
+
+pl.rc('text', usetex=True)
+pl.rc('font', family='serif',  serif='Times')    
 
 #%%
 #Don't forget to change this PATH
@@ -38,24 +41,24 @@ pca.fit(D)
 A = pca.fit_transform(D)
 #%%
 # def draw_vector(v0, v1, ax=None):
-#     ax = ax or plt.gca()
+#     ax = ax or pl.gca()
 #     arrowprops=dict(arrowstyle='->',
 #                     linewidth=2,
 #                     shrinkA=0, shrinkB=0)
 #     ax.annotate('', v1, v0, arrowprops=arrowprops)
 
 
-# plt.scatter(A[:, 0], A[:, 1], alpha=0.9)
+# pl.scatter(A[:, 0], A[:, 1], alpha=0.9)
 # for length, vector in zip(pca.explained_variance_, pca.components_):
 #     v = vector * 3 * np.sqrt(length)
 #     draw_vector(pca.mean_, pca.mean_ + v)
-# plt.axis('equal');
+# pl.axis('equal');
 #%%
-plt.figure()
-plt.scatter(A[:, 0], A[:, 1], alpha=0.9)
+pl.figure()
+pl.scatter(A[:, 0], A[:, 1], alpha=0.6, s=100)
 for x,s in zip(A,r): 
-    plt.text(x=x[0], y=x[1], s=s, fontsize=10)  
+    pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
     
-plt.axis('equal');
+pl.axis('equal');
 
 #%%
