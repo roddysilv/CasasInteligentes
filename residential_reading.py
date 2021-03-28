@@ -19,3 +19,5 @@ for csv_path in glob(path+'Residential_*.csv'):
     dataframeempty = dataframeempty.append(X)
 
 dataframeempty.to_csv('csv/tsfel_results.csv')
+
+
