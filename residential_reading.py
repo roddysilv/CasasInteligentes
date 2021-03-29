@@ -142,7 +142,7 @@ for x,s in zip(A,r):
     pl.scatter(x=x[0], y=x[1], s=0,)
     pl.text(x=x[0], y=x[1], s=s, fontsize=8)  
     
-plt.plot(X[clust.labels_ == -1, 0], X[clust.labels_ == -1, 1], 'ko',)
+plt.plot(A[clust.labels_ == -1, 0], A[clust.labels_ == -1, 1], 'ko',alpha=0.2)
 plt.title('Automatic Clustering\nOPTICS')
 plt.show()
 
