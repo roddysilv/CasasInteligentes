@@ -15,6 +15,7 @@ pl.rc('font', family='serif',  serif='Times')
 #Don't forget to change this PATH
 path = 'csv/'
 dataframeempty = pd.DataFrame()
+W =[]
 for csv_path in glob(path+'Residential_*.csv'):
     df = pd.read_csv(csv_path)
     df.dropna(inplace=True)
@@ -27,11 +28,39 @@ for csv_path in glob(path+'Residential_*.csv'):
     X['File Name'] = csv_path
     dataframeempty = dataframeempty.append(X)
 
+
+    cfgx = tsfel.get_features_by_domain(domain="spectral")
+    cfgs = tsfel.get_features_by_domain(domain="statistical")
+    cfgt = tsfel.get_features_by_domain(domain="temporal")
+    
+    x  = tsfel.time_series_features_extractor(cfg , df, verbose=0)
+    xx = tsfel.time_series_features_extractor(cfgx, df, verbose=0)
+    xs = tsfel.time_series_features_extractor(cfgs, df, verbose=0)
+    xt = tsfel.time_series_features_extractor(cfgt, df, verbose=0)
+    
+    x=pd.concat([xs,xt,], axis=1)
+    W.append(list(x.values.ravel()))
+
+
 dataframeempty.to_csv('csv/tsfel_results.csv')
+
+W=pd.DataFrame(W, columns=x.columns)
+
+W.to_csv('csv/tsfel_results_uncorrelated.csv')
 
 #%%
 X = dataframeempty.copy()
-X['File Name'] = ['H-'+f.split('/')[-1].split('.csv')[0].split('_')[-1] for f in X['File Name']]
+
+W['File Name']  = X['File Name'].values
+#X = W.copy()
+
+
+cf=tsfel.correlated_features(X)
+X.drop(labels=cf, axis=1, inplace=True)
+X.drop(labels='0_ECDF Slope', axis=1, inplace=True)
+
+
+X['File Name'] = [f.split('/')[-1].split('.csv')[0].split('_')[-1] for f in X['File Name']]
 
 r = X['File Name']
 D = X.drop(['File Name'], axis=1)
@@ -55,9 +84,9 @@ A = pca.fit_transform(D)
 # pl.axis('equal');
 #%%
 pl.figure()
-pl.scatter(A[:, 0], A[:, 1], alpha=0.6, s=100)
+pl.scatter(A[:, 0], A[:, 1], alpha=0.6, s=1)
 for x,s in zip(A,r): 
-    pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
+    pl.text(x=x[0], y=x[1], s=s, fontsize=8)  
     
 pl.axis('equal');
 
