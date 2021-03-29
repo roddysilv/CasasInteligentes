@@ -130,7 +130,7 @@ clust.fit(X)
 space = np.arange(len(X))
 reachability = clust.reachability_[clust.ordering_]
 labels = clust.labels_[clust.ordering_]
-
+n_clusters_ = len(np.unique(clust.labels_[clust.labels_ != -1]))
 
 colors = ['go', 'ro', 'bo', 'yo', 'co']
 plt.figure()
@@ -143,7 +143,7 @@ for x,s in zip(A,r):
     pl.text(x=x[0], y=x[1], s=s, fontsize=8)  
     
 plt.plot(A[clust.labels_ == -1, 0], A[clust.labels_ == -1, 1], 'ko',alpha=0.2)
-plt.title('Automatic Clustering\nOPTICS')
+plt.title('OPTICS\nEstimated number of clusters: %d' % n_clusters_)
 plt.show()
 
 #%%
