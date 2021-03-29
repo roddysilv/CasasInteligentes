@@ -124,3 +124,28 @@ plt.show()
 
 
 #%%
+from sklearn.cluster import OPTICS, cluster_optics_dbscan
+clust = OPTICS(min_samples=5, xi=.05, min_cluster_size=.05)
+clust.fit(X)
+space = np.arange(len(X))
+reachability = clust.reachability_[clust.ordering_]
+labels = clust.labels_[clust.ordering_]
+
+
+colors = ['go', 'ro', 'bo', 'yo', 'co']
+plt.figure()
+for klass, color in zip(range(0, 5), colors):
+    Xk = A[clust.labels_ == klass]
+    plt.plot(Xk[:, 0], Xk[:, 1], color, alpha=0.99)
+   
+for x,s in zip(A,r): 
+    pl.scatter(x=x[0], y=x[1], s=0,)
+    pl.text(x=x[0], y=x[1], s=s, fontsize=8)  
+    
+plt.plot(X[clust.labels_ == -1, 0], X[clust.labels_ == -1, 1], 'ko',)
+plt.set_title('Automatic Clustering\nOPTICS')
+
+
+
+
+#%%
