@@ -119,7 +119,7 @@ for x,s in zip(A,r):
     pl.text(x=x[0], y=x[1], s=s, fontsize=8)  
     
 #pl.axis('equal');
-plt.title('Estimated number of clusters: %d' % n_clusters_)
+plt.title('Affinity Propagation\nEstimated number of clusters: %d' % n_clusters_)
 plt.show()
 
 
@@ -143,9 +143,7 @@ for x,s in zip(A,r):
     pl.text(x=x[0], y=x[1], s=s, fontsize=8)  
     
 plt.plot(X[clust.labels_ == -1, 0], X[clust.labels_ == -1, 1], 'ko',)
-plt.set_title('Automatic Clustering\nOPTICS')
-
-
-
+plt.title('Automatic Clustering\nOPTICS')
+plt.show()
 
 #%%
