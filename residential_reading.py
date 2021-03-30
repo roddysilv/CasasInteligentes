@@ -156,11 +156,11 @@ houseInfo = pd.concat([houseInfo,
 
 
 
-for c in ['HouseType']:
-    h = pd.get_dummies(houseInfo[c])
-    #houseInfo.drop(columns=c, inplace=True)
-    for c1 in h.columns:
-        houseInfo[c1] = h[c1].values
+# for c in ['HouseType']:
+#     h = pd.get_dummies(houseInfo[c])
+#     #houseInfo.drop(columns=c, inplace=True)
+#     for c1 in h.columns:
+#         houseInfo[c1] = h[c1].values
 
 houseInfo = houseInfo.drop(columns =['HouseType','Facing','Region','FirstReading','LastReading'])
 
