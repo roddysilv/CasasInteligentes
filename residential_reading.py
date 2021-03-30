@@ -147,3 +147,30 @@ plt.title('OPTICS\nEstimated number of clusters: %d' % n_clusters_)
 plt.show()
 
 #%%
+houseInfo = pd.read_csv('csv/Houses_info.csv')
+houseInfo = pd.concat([houseInfo,
+                       pd.get_dummies(houseInfo['HouseType']),
+                       pd.get_dummies(houseInfo['Facing']),
+                       pd.get_dummies(houseInfo['Region'])],
+                       axis=1)
+
+houseInfo = houseInfo.drop(columns =['HouseType','Facing','Region','FirstReading','LastReading'])
+houseInfo = houseInfo.fillna(0)
+houseInfo["Cover"] = houseInfo["Cover"].str.replace(",",".").astype(float)
+#%%
+
+r2 = houseInfo['House']
+D2 = houseInfo.drop(['House'], axis=1)
+
+pca = PCA(n_components=2)
+pca.fit(D2)
+A2 = pca.fit_transform(D2)
+
+pl.figure()
+pl.scatter(A2[:, 0], A2[:, 1], alpha=0.6, s=100)
+for x,s in zip(A2,r2): 
+    pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
+    
+pl.axis('equal');
+
+#%%
