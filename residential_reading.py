@@ -154,23 +154,38 @@ houseInfo = pd.concat([houseInfo,
                        pd.get_dummies(houseInfo['Region'])],
                        axis=1)
 
+
+
+for c in ['HouseType']:
+    h = pd.get_dummies(houseInfo[c])
+    #houseInfo.drop(columns=c, inplace=True)
+    for c1 in h.columns:
+        houseInfo[c1] = h[c1].values
+
 houseInfo = houseInfo.drop(columns =['HouseType','Facing','Region','FirstReading','LastReading'])
+
 houseInfo = houseInfo.fillna(0)
 houseInfo["Cover"] = houseInfo["Cover"].str.replace(",",".").astype(float)
 #%%
 
 r2 = houseInfo['House']
 D2 = houseInfo.drop(['House'], axis=1)
+D2.index = r2
 
-pca = PCA(n_components=2)
-pca.fit(D2)
-A2 = pca.fit_transform(D2)
-
-pl.figure()
-pl.scatter(A2[:, 0], A2[:, 1], alpha=0.6, s=100)
-for x,s in zip(A2,r2): 
-    pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
+D3 = houseInfo.drop(18, axis=0)
+D4 = houseInfo.drop(17, axis=0)
+            
+for aux in [D2,D3, D4]:
+    pca = PCA(n_components=2)
+    pca.fit(aux)
+    A2 = pca.fit_transform(aux)
     
-pl.axis('equal');
-
+    pl.figure()
+    pl.scatter(A2[:, 0], A2[:, 1], alpha=0.6, s=100)
+    for x,s in zip(A2,aux.index): 
+        pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
+        
+    #pl.axis('equal');
+    pl.show()
+    
 #%%
