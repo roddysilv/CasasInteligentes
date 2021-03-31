@@ -174,8 +174,11 @@ D2.index = r2
 
 D3 = houseInfo.drop(18, axis=0)
 D4 = houseInfo.drop(17, axis=0)
+
+D5 = D2.drop(18, axis=0)
+D6 = D5.drop(17, axis=0)
             
-for aux in [D2,D3, D4]:
+for aux in [D2, D3, D4, D5, D6]:
     pca = PCA(n_components=2)
     pca.fit(aux)
     A2 = pca.fit_transform(aux)
