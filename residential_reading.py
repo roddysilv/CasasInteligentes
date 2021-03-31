@@ -88,8 +88,8 @@ pl.scatter(A[:, 0], A[:, 1], alpha=0.6, s=1)
 for x,s in zip(A,r): 
     pl.text(x=x[0], y=x[1], s=s, fontsize=8)  
     
-pl.axis('equal');
-
+#pl.axis('equal');
+pl.show()
 #%%
 from sklearn.cluster import AffinityPropagation
 af = AffinityPropagation(preference=None).fit(X)
