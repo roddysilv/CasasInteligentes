@@ -57,7 +57,7 @@ W['File Name']  = X['File Name'].values
 
 cf=tsfel.correlated_features(X)
 X.drop(labels=cf, axis=1, inplace=True)
-X.drop(labels='0_ECDF Slope', axis=1, inplace=True)
+# X.drop(labels='0_ECDF Slope', axis=1, inplace=True)
 
 
 X['File Name'] = [f.split('/')[-1].split('.csv')[0].split('_')[-1] for f in X['File Name']]
@@ -88,8 +88,8 @@ pl.scatter(A[:, 0], A[:, 1], alpha=0.6, s=1)
 for x,s in zip(A,r): 
     pl.text(x=x[0], y=x[1], s=s, fontsize=8)  
     
-#pl.axis('equal');
-pl.show()
+pl.axis('equal');
+
 #%%
 from sklearn.cluster import AffinityPropagation
 af = AffinityPropagation(preference=None).fit(X)
@@ -148,47 +148,101 @@ plt.show()
 
 #%%
 houseInfo = pd.read_csv('csv/Houses_info.csv')
+
+h = houseInfo['HouseType']
+h = h.fillna('not specified')
+
 houseInfo = pd.concat([houseInfo,
                        pd.get_dummies(houseInfo['HouseType']),
                        pd.get_dummies(houseInfo['Facing']),
                        pd.get_dummies(houseInfo['Region'])],
                        axis=1)
 
-
-
-# for c in ['HouseType']:
-#     h = pd.get_dummies(houseInfo[c])
-#     #houseInfo.drop(columns=c, inplace=True)
-#     for c1 in h.columns:
-#         houseInfo[c1] = h[c1].values
-
 houseInfo = houseInfo.drop(columns =['HouseType','Facing','Region','FirstReading','LastReading'])
 
 houseInfo = houseInfo.fillna(0)
-houseInfo["Cover"] = houseInfo["Cover"].str.replace(",",".").astype(float)
+houseInfo["Cover"] = houseInfo["Cover"].str.replace(",",".").astype(float
+                                                                    )
 #%%
 
 r2 = houseInfo['House']
 D2 = houseInfo.drop(['House'], axis=1)
-D2.index = r2
+D2.index = r2          
 
-D3 = houseInfo.drop(18, axis=0)
-D4 = houseInfo.drop(17, axis=0)
+pca = PCA(n_components=2)
+pca.fit(D2)
+A2 = pca.fit_transform(D2)
 
-D5 = D2.drop(18, axis=0)
-D6 = D5.drop(17, axis=0)
-            
-for aux in [D2, D3, D4, D5, D6]:
-    pca = PCA(n_components=2)
-    pca.fit(aux)
-    A2 = pca.fit_transform(aux)
+df = pd.DataFrame(A2)
+df = df.rename(columns={0:'x',1:'y'})
+df = pd.concat([df, h], axis=1)
+
+pl.figure()
+for x,s in zip(A2,D2.index): 
+    pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
     
-    pl.figure()
-    pl.scatter(A2[:, 0], A2[:, 1], alpha=0.6, s=100)
-    for x,s in zip(A2,aux.index): 
-        pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
-        
-    #pl.axis('equal');
-    pl.show()
+sns.scatterplot('x', 'y', data=df, hue=df.iloc[:,2],s=100)
+pl.title("Variáveis Dummie")
+pl.show()
+
+A2 = np.delete(A2,17,0)
+df = df.drop(17,axis=0)
+
+pl.figure()
+for x,s in zip(A2,D2.index): 
+    pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
+    
+sns.scatterplot('x', 'y', data=df, hue=df.iloc[:,2],s=100)
+pl.title("Variáveis Dummie - Removendo casa 18 do Gráfico")
+pl.show()
     
 #%%
+
+houseInfo = pd.read_csv('csv/Houses_info.csv')
+
+# houseInfo = houseInfo.fillna(0)
+ 
+h = houseInfo['HouseType']
+h = h.fillna('not specified')
+
+houseInfo['HouseType'] = houseInfo['HouseType'].astype('category').cat.codes
+houseInfo['Facing'] = houseInfo['Facing'].astype('category').cat.codes
+houseInfo['Region'] = houseInfo['Region'].astype('category').cat.codes
+houseInfo = houseInfo.drop(columns =['FirstReading','LastReading'])
+houseInfo = houseInfo.fillna(0)
+houseInfo["Cover"] = houseInfo["Cover"].str.replace(",",".").astype(float)
+
+
+#%%
+
+r3 = houseInfo['House']
+D3 = houseInfo.drop(['House'], axis=1)
+D3.index = r2          
+
+pca = PCA(n_components=2)
+pca.fit(D2)
+A3 = pca.fit_transform(D3)
+
+df = pd.DataFrame(A3)
+df = df.rename(columns={0:'x',1:'y'})
+df = pd.concat([df, h], axis=1)
+
+pl.figure()
+for x,s in zip(A3,D3.index): 
+    pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
+    
+sns.scatterplot('x', 'y', data=df, hue=df.iloc[:,2],s=100)
+pl.title("Variáveis Categóricas")
+pl.show()
+
+A2 = np.delete(A2,17,0)
+df = df.drop(17,axis=0)
+
+pl.figure()
+for x,s in zip(A3,D3.index): 
+    pl.text(x=x[0], y=x[1], s=s, fontsize=10)  
+    
+sns.scatterplot('x', 'y', data=df, hue=df.iloc[:,2],s=100)
+pl.title("Variáveis Categóricas - Removendo casa 18 do Gráfico")
+pl.show()
+    
