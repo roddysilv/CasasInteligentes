@@ -25,7 +25,7 @@ for i in range(1,29):
     aux = aux.fillna(0)
     media(aux)
     # print(aux.describe())
-    aux.to_csv('treated_data/Residential_' + str(i) + '.csv')
+    aux.to_csv('treated_data/Residential_' + str(i) + '.csv',index=False)
     
 #%%
 # =============================================================================
@@ -41,7 +41,7 @@ for i in range(1,29):
             aux2 = aux.isnull().iloc[aux.shape[0]-1,2]
     aux = aux.fillna(0)
     media(aux)
-    aux.to_csv('treated_data/Residential_' + str(i) + '.csv')
+    aux.to_csv('treated_data/Residential_' + str(i) + '.csv',index=False)
     plt.figure(figsize=(15,10),dpi=200)
     plt.title('Casa ' + str(i) + ' - Tratada')
     aux['energy_kWh'].plot(color='k')
