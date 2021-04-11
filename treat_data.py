@@ -10,6 +10,7 @@ Created on Tue Apr  6 21:03:19 2021
 # =============================================================================
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def media(aux):
     for i in range(aux.shape[0]):
@@ -19,9 +20,39 @@ def media(aux):
            else:
                aux.iloc[i,2] = (aux.iloc[i - 48, 2] + aux.iloc[i - 24, 2]) / 2
 
-for i in range(1,15):   
-    aux = pd.read_csv('csv/Residential_' + str(14 + i) + '.csv')
+for i in range(1,29):   
+    aux = pd.read_csv('csv/Residential_' + str(i) + '.csv')
     aux = aux.fillna(0)
     media(aux)
     # print(aux.describe())
-    aux.to_csv('treated_data/Residential_' + str(i + 14) + '.csv')
+    aux.to_csv('treated_data/Residential_' + str(i) + '.csv')
+    
+#%%
+# =============================================================================
+# Remove Dados faltantes do fim dos arquivos
+# Plota gráfico do consumo e salva
+# =============================================================================
+for i in range(1,29):   
+    aux = pd.read_csv('csv/Residential_' + str(i) + '.csv')
+    if(aux.isnull().iloc[aux.shape[0]-1,2]):
+        aux2 = aux.isnull().iloc[aux.shape[0]-1,2]
+        while (aux2):
+            aux = aux.drop(aux.shape[0]-1)
+            aux2 = aux.isnull().iloc[aux.shape[0]-1,2]
+    aux = aux.fillna(0)
+    media(aux)
+    aux.to_csv('treated_data/Residential_' + str(i) + '.csv')
+    plt.figure(figsize=(15,10),dpi=200)
+    plt.title('Casa ' + str(i) + ' - Tratada')
+    aux['energy_kWh'].plot(color='k')
+    plt.savefig('plots/Residential_'+str(i)+'_treated.png')
+    plt.show()
+    
+#%%
+for i in range(1,29):   
+    aux = pd.read_csv('csv/Residential_' + str(i) + '.csv')
+    plt.figure(figsize=(15,10),dpi=200)
+    aux['energy_kWh'].plot(color='k')
+    plt.title('Casa ' + str(i) + ' - Não tratada')
+    plt.savefig('plots/Residential_'+str(i)+'.png')
+    plt.show()
